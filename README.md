@@ -1,57 +1,66 @@
-# Project Name
+---
+services: storage
+platforms: python
+author: ruthogunnnaike
+---
 
-(short, 1-3 sentenced, description of the project)
+# Using the Circuit Breaker pattern in your HA apps with RA-GRS Storage
 
-## Features
+This sample shows how to use the Circuit Breaker pattern with an RA-GRS storage account to switch your high-availability application to secondary storage when there is a problem with primary storage, and then switch back when primary storage becomes available 
+again. For more information, please see [Designing HA Apps with RA-GRS storage](
+https://azure.microsoft.com/documentation/articles/storage-designing-ha-apps-with-ra-grs).
 
-This project framework provides the following features:
+If you don't have a Microsoft Azure subscription, you can
+get a FREE trial account <a href="http://go.microsoft.com/fwlink/?LinkId=330212">here</a>.
 
-* Feature 1
-* Feature 2
-* ...
+## How it works
 
-## Getting Started
+This application uploads a file to a container in blob storage to use for the test. 
+Then it proceeds to loop, downloading the file repeatedly, reading against primary storage. 
+If there is an error reading the primary, a retry is performed, and your threshold has 
+been exceeded, it will switch to secondary storage. 
 
-### Prerequisites
+The application will continue to read from the secondary until it exceeds the secondary threshold,
+and then it switches back to primary. 
 
-(ideally very short, if any)
+In the case included here, the thresholds are arbitrary numbers for the count of allowable 
+retries against the primary before switching to the secondary, and the count of allowable 
+reads against the secondary before switching back. You can use any algorithm to 
+determine your thresholds; the purpose of this sample is just to show you how to 
+capture the events and switch back and forth. 
 
-- OS
-- Library version
-- ...
+## How to run the sample
 
-### Installation
+1. If you don't already have it installed, [install Fiddler](http://www.telerik.com/fiddler).
+ 
+	This is used to modify the response from the service to indicate a failure, so it triggers the failover to secondary. 
 
-(ideally very short)
+2. Replace the **accountname** and **accountkey** values with your account name and key in the **circuitbreaker.py**. The account must have RA-GRS enabled, or the sample will fail. 
 
-- npm install [package name]
-- mvn install
-- ...
+3. Run Fiddler. 
 
-### Quickstart
-(Add steps to get up and running quickly)
+4. Run the Python application. It displays information on your console window showing the count of requests made against the storage service to download the file, and tells whether you are accessing the primary or secondary endpoint. You can also see this in the Fiddler trace. 
 
-1. git clone [repository clone url]
-2. cd [respository name]
-3. ...
+5. The application will pause at 200 count intervals.
+
+6. Go to Fiddler and select Rules > Customize Rules. Look for the OnBeforeResponse function and insert this code. (An example of the OnBeforeResponse method is included in the project in the Fiddler_script.txt file.)
+
+	if ((oSession.hostname == "YOURSTORAGEACCOUNTNAME.blob.core.windows.net") 
+	&& (oSession.PathAndQuery.Contains("HelloWorld"))) {
+	   oSession.responseCode = 503;  
+        }
+
+	Change YOURSTORAGEACCOUNTNAME to your storage account name, and uncomment out this code. Save your changes to the script. 
+
+7. Return to your application and press the any key to continue running it. In the output, you will see the errors against primary that come from the intercept in Fiddler. Then you will see the switch to secondary storage. After the number of reads exceeds the threshold, you will see it switch back to primary. It does this repeatedly. 
+
+8. Pause the running application again. Go back into Fiddler and comment out the code 
+and save the script. Continue running the application. You will see it switch back to primary and run successfully against primary again.
+
+If you run this repeatedly, be sure the script change is commented out before you start the application. 
 
 
-## Demo
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+## More information
+- [About Azure storage accounts](https://docs.microsoft.com/azure/storage/storage-create-storage-account)
+- [Designing HA Apps with RA-GRS storage](https://docs.microsoft.com/azure/storage/storage-designing-ha-apps-with-ra-grs/)
+- [Azure Storage Replication](https://docs.microsoft.com/azure/storage/storage-redundancy)
