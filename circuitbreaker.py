@@ -25,8 +25,8 @@ Azure Storage Circuit Breaker Demo
 INSTRUCTIONS
 Please see the README.md file for an overview explaining this application and how to run it.
 '''
-account_name = "storageaccountragrs"
-account_key = "3k1YHiyxsME2YC52FcQQk+Yj+8yX5uYCVydPUP2rN4WTUokFODWzwRU9cF6qxWGS7NaFm1UFuinMAiCE1jSakg=="
+account_name = "accountname"
+account_key = "accountkey"
 
 # Track how many times retry events occur.
 retry_count = 0  # Number of retries that have occurred
@@ -55,7 +55,7 @@ def run_circuit_breaker():
     try:
 
         # Create a reference to the blob client and container using the storage account name and key
-        blob_client = BlockBlobService(account_name, account_key)
+        blob_client = BlockBlobService(account_name, account_key, protocol='http')
 
         # Make the container unique by using a UUID in the name.
         container_name = "democontainer" + str(uuid.uuid4())
@@ -137,7 +137,10 @@ def run_circuit_breaker():
             if i == 200 or i == 400 or i == 600 or i == 800:
                 sys.stdout.write("\nPress the Enter key to resume")
                 sys.stdout.flush()
-                raw_input()
+                if sys.version_info[0] < 3:
+                    raw_input()
+                else:
+                    input()
         except Exception as ex:
             print(ex)
         finally:
@@ -204,4 +207,7 @@ if __name__ == '__main__':
         print("Error thrown = {0}".format(e))
     sys.stdout.write("\nPress any key to exit.")
     sys.stdout.flush()
-    raw_input()
+    if sys.version_info[0]<3:
+        raw_input()
+    else:
+        input()
