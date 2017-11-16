@@ -20,11 +20,19 @@ from azure.storage.blob import BlockBlobService
 from azure.storage.common.models import LocationMode
 from azure.storage.common.retry import LinearRetry
 
-'''
-Azure Storage Circuit Breaker Demo
-INSTRUCTIONS
-Please see the README.md file for an overview explaining this application and how to run it.
-'''
+
+# ----------------------------------------------------------------------------------
+# Azure Storage Circuit Breaker Demo
+# INSTRUCTIONS
+# Please see the README.md file for an overview explaining this application and how to run it.
+# ----------------------------------------------------------------------------------
+# Documentation References:
+# Associated Article - https://docs.microsoft.com/en-us/azure/storage/blobs/storage-create-geo-redundant-storage-python
+# Designing HA Apps with RA-GRS storage -https://docs.microsoft.com/azure/storage/storage-designing-ha-apps-with-ra-grs/
+# Getting Started with Blobs-https://docs.microsoft.com/en-us/azure/storage/blobs/storage-python-how-to-use-blob-storage
+# Azure Storage Replication - https://docs.microsoft.com/azure/storage/storage-redundancy
+# ----------------------------------------------------------------------------------
+
 account_name = "accountname"
 account_key = "accountkey"
 
@@ -88,13 +96,10 @@ def run_circuit_breaker():
         # When it's finished replicating to the secondary, continue.
         time.sleep(1)
 
-    '''
-    Set the starting LocationMode to Primary, then Secondary.
-    Here we use the linear retry by default, but allow it to retry to secondary if
-    the initial request to primary fails.
-    Note that the default is Primary. You must have RA-GRS enabled to use this
-    '''
-
+    # Set the starting LocationMode to Primary, then Secondary.
+    # Here we use the linear retry by default, but allow it to retry to secondary if
+    # the initial request to primary fails.
+    # Note that the default is Primary. You must have RA-GRS enabled to use this
     blob_client.location_mode = LocationMode.PRIMARY
     blob_client.retry = LinearRetry(max_attempts=retry_threshold, backoff=1).retry
 
@@ -128,12 +133,15 @@ def run_circuit_breaker():
 
         try:
 
+            # These function is called immediately after retry evaluation is performed.
+            # It is used to trigger the change from primary to secondary and back
             blob_client.retry_callback = retry_callback
-            blob_client.response_callback = response_callback
 
+            # Download the file
             blob_client.get_blob_to_path(container_name, image_to_upload,
                                                 str.replace(full_path_to_file, ".png", "Copy.png"))
 
+            # Set the application to pause at 200 unit intervals to implement simulated failures
             if i == 200 or i == 400 or i == 600 or i == 800:
                 sys.stdout.write("\nPress the Enter key to resume")
                 sys.stdout.flush()
