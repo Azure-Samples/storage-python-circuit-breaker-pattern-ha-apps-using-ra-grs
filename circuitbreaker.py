@@ -73,6 +73,8 @@ def run_circuit_breaker():
     try:
 
         # Create a reference to the blob client and container using the storage account name and key
+        # To avoid injecting a false SSL  certificate to decrypt SSL traffic, the storage
+        # client object  protocol is set to http.
         blob_client = BlockBlobService(account_name, account_key, protocol='http')
 
         # Make the container unique by using a UUID in the name.
@@ -121,13 +123,13 @@ def run_circuit_breaker():
         Next, run this app. While this loop is running, pause the program by pressing any key, and
         put the intercept code in Fiddler (that will intercept and return a 503).
 
-        For or instructions on modifying Fiddler, look at the Fiddler_script.text file in this project
-        There are also full instructions in the ReadMe_Instructions.txt file included in this project
+        For instructions on modifying Fiddler, look at the Fiddler_script.text file in this project.
+        There are also full instructions in the ReadMe_Instructions.txt file included in this project.
 
         After adding the custom script to Fiddler, calls to primary storage will fail with a retryable
         error which will trigger the Retrying event (above).
         Then it will switch over and read the secondary. It will do that 20 times, then try to
-        switch back to the primary
+        switch back to the primary.
         After seeing that happen, pause this again and remove the intercepting Fiddler code
         Then you'll see it return to the primary and finish.
         '''
@@ -171,11 +173,11 @@ def run_circuit_breaker():
 
 '''
 RequestCompleted Event handler
-If it's not pointing at the secondary, let if go through. It was either successful,
+If it's not pointing at the secondary, let it go through. It was either successful,
 or it failed with a non-retryable event.
 If it's pointing at the secondary, increment the read count.
 If the number of reads has hit the threshold of how many reads you want to do against the secondary,
-before you switch back to primary, switch back and reset the secondary_read_count
+before you switch back to primary, switch back and reset the secondary_read_count.
 '''
 
 
@@ -194,8 +196,8 @@ def response_callback(response):
 '''
 Retry Event handler
 If it has retried more times than allowed, and it's not already pointed to the secondary,
-flip it to the secondary and reset the retry count
-If it has retried more times than allowed, and it's already pointed to the secondary throw an exception
+flip it to the secondary and reset the retry count.
+If it has retried more times than allowed, and it's already pointed to the secondary throw an exception.
 '''
 
 
