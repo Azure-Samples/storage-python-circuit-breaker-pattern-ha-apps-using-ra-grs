@@ -73,9 +73,7 @@ def run_circuit_breaker():
     try:
 
         # Create a reference to the blob client and container using the storage account name and key
-        # To avoid injecting a false SSL  certificate to decrypt SSL traffic, the storage
-        # client object  protocol is set to http.
-        blob_client = BlockBlobService(account_name, account_key, protocol='http')
+        blob_client = BlockBlobService(account_name, account_key)
 
         # Make the container unique by using a UUID in the name.
         container_name = "democontainer" + str(uuid.uuid4())
