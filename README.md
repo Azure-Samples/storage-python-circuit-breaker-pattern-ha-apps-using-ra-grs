@@ -26,13 +26,30 @@ In the case included here, the thresholds are arbitrary numbers for the count of
 
 ## How to run the sample
 
-1. If you don't already have it installed, download and install Fiddler on your [Windows](https://www.telerik.com/download/fiddler) or [Linux](http://telerik-fiddler.s3.amazonaws.com/fiddler/fiddler-linux.zip) machine. [More information](https://www.telerik.com/blogs/fiddler-for-linux-beta-is-here) on how to install Fiddler on Linux
+1.  If you don't already have it installed, download and install Fiddler on your [Windows](https://www.telerik.com/download/fiddler) or [Linux](http://telerik-fiddler.s3.amazonaws.com/fiddler/fiddler-linux.zip) machine. [More information](https://www.telerik.com/blogs/fiddler-for-linux-beta-is-here) on how to install Fiddler on Linux. 
  
-Fiddler will be used to modify the response from the service to indicate a failure, so it triggers the failover to secondary. 
+Fiddler will be used to modify the response from the service to indicate a failure, so it triggers the failover to secondary.
 
-2. Replace the **accountname** and **accountkey** values with your account name and key in the **circuitbreaker.py**. The account must have RA-GRS enabled, or the sample fails. 
+>NOTE
+>Invalid static route can also be used to simulate failure. 
+>
+>
 
-3. Run Fiddler. 
+2. Store your account credentials in enviroment variables securely on the machine running the sample. Enter the following command to create and store your **accoutname** and **accountkey** in environment variables. 
+The account must have RA-GRS enabled, or the sample fails. 
+
+### Linux 
+```bash
+export  accountname "<YourStorageAccountName>"
+export accountkey "<YourStorageAccountKey>"
+```
+### Windows 
+```cmd
+setx accountname "<YourStorageAccountName>"
+setx accountkey "<YourStorageAccountKey>"
+```
+
+3. Run Fiddler or create an invalid static route. 
 
 4. Run the Python application. It displays information on your console window showing the count of requests made against the storage service to download the file, and tells whether you are accessing the primary or secondary endpoint. You can also see the information in the Fiddler trace. 
 

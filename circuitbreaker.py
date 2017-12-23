@@ -43,8 +43,8 @@ from azure.storage.common.retry import LinearRetry
 # Azure Storage Replication - https://docs.microsoft.com/azure/storage/storage-redundancy
 # ----------------------------------------------------------------------------------
 
-account_name = "accountname"
-account_key = "accountkey"
+account_name = os.environ.get('accountname')
+account_key = os.environ.get('accountkey')
 
 # Track how many times retry events occur.
 retry_count = 0  # Number of retries that have occurred
