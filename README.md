@@ -31,17 +31,16 @@ Fiddler will be used to modify the response from the service to indicate a failu
 
 >NOTE
 >Invalid static route can also be used to simulate failure. 
->
->
 
-2. Store your account credentials in enviroment variables securely on the machine running the sample. Enter the following command to create and store your **accoutname** and **accountkey** in environment variables. 
+2. Store your account credentials in enviroment variables securely on the machine running the sample. Enter the following command to create and store your **accountname** and **accountkey** in environment variables. 
 The account must have RA-GRS enabled, or the sample fails. 
 
 ### Linux 
 ```bash
-export  accountname "<YourStorageAccountName>"
+export accountname "<YourStorageAccountName>"
 export accountkey "<YourStorageAccountKey>"
 ```
+
 ### Windows 
 ```cmd
 setx accountname "<YourStorageAccountName>"
@@ -56,12 +55,14 @@ setx accountkey "<YourStorageAccountKey>"
 
 6. Go to Fiddler and select Rules > Customize Rules. Look for the OnBeforeResponse function and insert this code. (An example of the OnBeforeResponse method is included in the project in the Fiddler_script.txt file.)
 
-	if ((oSession.hostname == "YOURSTORAGEACCOUNTNAME.blob.core.windows.net") 
-	&& (oSession.PathAndQuery.Contains("HelloWorld"))) {
-	   oSession.responseCode = 503;  
-        }
+    ```
+    if ((oSession.hostname == "YOURSTORAGEACCOUNTNAME.blob.core.windows.net") 
+    && (oSession.PathAndQuery.Contains("HelloWorld"))) {
+      oSession.responseCode = 503;  
+    }
+    ```
 
-	Change YOURSTORAGEACCOUNTNAME to your storage account name, and uncomment out this code. Save your changes to the script. 
+    Change YOURSTORAGEACCOUNTNAME to your storage account name, and uncomment out this code. Save your changes to the script. 
 
 7. Return to your application and press any key to continue running it. In the output, you will see the errors against primary that come from the intercept in Fiddler, and the switch to secondary storage. After the number of reads exceeds the threshold, you will see it switch back to primary. It does this repeatedly. 
 
@@ -70,8 +71,8 @@ and save the script. Continue running the application. You will see it switch ba
 
 If you run the application repeatedly, be sure the script change is commented out before you start the application. 
 
-
 ## More information
+
 - [About Azure storage accounts](https://docs.microsoft.com/azure/storage/storage-create-storage-account)
 - [Designing HA Apps with RA-GRS storage](https://docs.microsoft.com/azure/storage/common/storage-designing-ha-apps-with-ragrs)
 - [Azure Storage Replication](https://docs.microsoft.com/azure/storage/storage-redundancy)
